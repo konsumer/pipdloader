@@ -11,7 +11,6 @@ The `-s` flag is "Use SSD1306 OLED on GPIO 2/3". You can send messages to `oled`
 ```
 text 0 0 0 Hello World - write text with color (0/1) at 0x0 pixel-position
 rect 1 0 0 128 64 - make a rectangle with color (0/1)
-
 ```
 The `-i` flag is "GPIO input" meaning your patch can receive `gpio_in` messages that look like `17 0` for "GPIO17 switched to off"
 
@@ -32,7 +31,7 @@ cmake -B build
 cmake --build build
 ```
 
-On an Intel mac, I did this all in a docker:
+On an Intel mac, I did this all in a docker, to build for pi:
 
 ```
 docker run --rm -ti -v `pwd`:/mnt --platform=linux/arm64 debian
