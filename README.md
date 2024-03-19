@@ -54,3 +54,5 @@ I have some plans:
 - support for MIDI (with automatic connect/disconnect)
 - websocket server (to remotely interact with server)
 - web emulator
+- make sure native extensions are working, include a bunch
+- more oled commands
