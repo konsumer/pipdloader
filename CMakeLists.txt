@@ -25,6 +25,18 @@ file(DOWNLOAD
     SHOW_PROGRESS
 )
 
+file(DOWNLOAD
+   https://raw.githubusercontent.com/Mashpoe/c-vector/master/vec.c
+    ${CMAKE_BINARY_DIR}/include/vec.c
+    SHOW_PROGRESS
+)
+
+file(DOWNLOAD
+   https://raw.githubusercontent.com/Mashpoe/c-vector/master/vec.h
+    ${CMAKE_BINARY_DIR}/include/vec.h
+    SHOW_PROGRESS
+)
+
 # this will make libpd work on mac. need to work them out for other platforms
 if(APPLE)
   add_definitions(-DHAVE_ALLOCA_H -DHAVE_MACHINE_ENDIAN_H -D_DARWIN_C_SOURCE -DHAVE_LIBDL)
@@ -51,5 +63,8 @@ include_directories(${libpdremote_SOURCE_DIR}/libpd_wrapper)
 include_directories(${libpdremote_SOURCE_DIR}/pure-data/src)
 
 include_directories(${CMAKE_BINARY_DIR}/include)
-add_executable(${PROJECT_NAME} src/main.c src/vec.c)
+add_executable(${PROJECT_NAME}
+  src/main.c
+  ${CMAKE_BINARY_DIR}/include/vec.c
+)
 target_link_libraries(${PROJECT_NAME} libpd_static portaudio)

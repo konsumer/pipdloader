@@ -47,9 +47,10 @@ cmake --build build
 
 I have some plans:
 
+- get basic IO & OLED working
+- option/sends for [these nice rotary i2c things](https://www.adafruit.com/product/5752)
 - option to trigger GUI (so you can edit patch)
 - option to watch for file-changes & reload
-- option/sends for [these nice rotary i2c things](https://www.adafruit.com/product/5752)
 - options for PWM output
 - support for MIDI (with automatic connect/disconnect)
 - websocket server (to remotely interact with server)

@@ -13,8 +13,6 @@
 #include <windows.h>
 #endif
 
-// add OLED from this: https://github.com/giuliomoro/OSC2OLED4Bela
-
 bool file_exists(char* filename) {
   return (access(filename, R_OK)) != -1;
 }
@@ -55,13 +53,115 @@ void sleep_ms(int ms) {
 #endif
 }
 
-void pdprint(const char* s) {
+static void printHook(const char* s) {
   printf("%s", s);
 }
 
-void pdnoteon(int ch, int pitch, int vel) {
-  printf("noteon: %d %d %d\n", ch, pitch, vel);
+static void messageHook(const char* src, const char* sym, int argc, t_atom* argv) {
+  // printf("MESSAGE: %s %s (%d)\n", src, sym, argc);
+  if (strcmp(src, "oled") == 0) {
+    if (strcmp(sym, "text") == 0) {
+      int color = libpd_get_float(&argv[0]);
+      int x = libpd_get_float(&argv[1]);
+      int y = libpd_get_float(&argv[2]);
+
+      char text[100] = "";
+      for (int i = 3; i < argc; i++) {
+        strcat(text, libpd_get_symbol(&argv[i]));
+        if (i < (argc - 1)) {
+          strcat(text, " ");
+        }
+      }
+      printf("TEXT %d (%dx%d): %s\n", color, x, y, text);
+    }
+
+    if (strcmp(sym, "circle") == 0) {
+      int color = libpd_get_float(&argv[0]);
+      int x = libpd_get_float(&argv[1]);
+      int y = libpd_get_float(&argv[2]);
+      int r = libpd_get_float(&argv[3]);
+      printf("CIRCLE %d: (%dx%d - %d)\n", color, x, y, r);
+    }
+
+    if (strcmp(sym, "pixel") == 0) {
+      int color = libpd_get_float(&argv[0]);
+      int x = libpd_get_float(&argv[1]);
+      int y = libpd_get_float(&argv[2]);
+      printf("PIXEL %d: (%dx%d)\n", color, x, y);
+    }
+
+    if (strcmp(sym, "rectangle") == 0) {
+      int color = libpd_get_float(&argv[0]);
+      int x = libpd_get_float(&argv[1]);
+      int y = libpd_get_float(&argv[2]);
+      int w = libpd_get_float(&argv[3]);
+      int h = libpd_get_float(&argv[4]);
+      printf("RECTANGLE %d: (%dx%d - %dx%d)\n", color, x, y, w, h);
+    }
+
+    if (strcmp(sym, "image") == 0) {
+      int x = libpd_get_float(&argv[0]);
+      int y = libpd_get_float(&argv[1]);
+
+      char filename[100] = "";
+      for (int i = 3; i < argc; i++) {
+        strcat(filename, libpd_get_symbol(&argv[i]));
+        if (i < (argc - 1)) {
+          strcat(filename, " ");
+        }
+      }
+      printf("IMAGE (%dx%d): %s\n", x, y, filename);
+    }
+  }
+
+  // these are neopixels
+  if (strcmp(src, "rgb") == 0) {
+    // TODO: set RGB colors
+  }
 }
+
+static void noteonHook(int channel, int pitch, int velocity) {
+  printf("NOTEON: %d %d %d\n", channel, pitch, velocity);
+}
+
+static void listHook(const char* src, int argc, t_atom* argv) {
+  if (strcmp(src, "gpio_out") == 0) {
+    int pin = libpd_get_float(&argv[0]);
+    int value = libpd_get_float(&argv[1]);
+    printf("GPIO OUT: %d %d\n", pin, value);
+  }
+}
+
+/*
+
+static void bangHook(const char* src) {
+}
+
+static void floatHook(const char* src, float x) {
+}
+
+static void symbolHook(const char* src, const char* sym) {
+}
+
+static void controlChangeHook(int channel, int controller, int value) {
+}
+
+static void programChangeHook(int channel, int value) {
+}
+
+static void pitchBendHook(int channel, int value) {
+}
+
+static void aftertouchHook(int channel, int value) {
+}
+
+static void polyAftertouchHook(int channel, int pitch, int value) {
+}
+
+static void midiByteHook(int port, int byte) {
+}
+
+*/
 
 int piploader_run(char* filename, char* dirname, bool oled, int* input_gpios, int input_gpios_count, int* output_gpios, int output_gpios_count) {
   printf("File: %s\nOLED: %s\nInputs: ", filename, oled ? "yes" : "no");
@@ -114,10 +214,27 @@ int piploader_run(char* filename, char* dirname, bool oled, int* input_gpios, in
     return -1;
   }
 
-  // init pd, match portaudio channels and samplerate
-  libpd_set_printhook(pdprint);
-  libpd_set_noteonhook(pdnoteon);
+  libpd_set_printhook(printHook);
+  libpd_set_messagehook(messageHook);
+  libpd_set_noteonhook(noteonHook);
+  libpd_set_listhook(listHook);
+
+  // libpd_set_banghook(bangHook);
+  // libpd_set_floathook(floatHook);
+  // libpd_set_symbolhook(symbolHook);
+  // libpd_set_controlchangehook(controlChangeHook);
+  // libpd_set_programchangehook(programChangeHook);
+  // libpd_set_pitchbendhook(pitchBendHook);
+  // libpd_set_aftertouchhook(aftertouchHook);
+  // libpd_set_polyaftertouchhook(polyAftertouchHook);
+  // libpd_set_midibytehook(midiByteHook);
+
+  libpd_set_verbose(0);
   libpd_init();
+
+  libpd_bind("oled");
+  libpd_bind("gpio_out");
+
   libpd_init_audio(inputchan, outputchan, samplerate);
 
   // compute audio    [; pd dsp 1(
@@ -138,6 +255,8 @@ int piploader_run(char* filename, char* dirname, bool oled, int* input_gpios, in
   }
 
   while (1) {
+    // TODO: read input GPIOs & send messages
+    // TODO: read rotary-encoders (and extra buttons) & send messages
     sleep_ms(1000);
   }
 
