@@ -63,6 +63,18 @@ include_directories(${libpdremote_SOURCE_DIR}/libpd_wrapper)
 include_directories(${libpdremote_SOURCE_DIR}/pure-data/src)
 include_directories(${CMAKE_BINARY_DIR}/include)
 
+
+FetchContent_Declare(
+  ssd1306
+  GIT_REPOSITORY https://github.com/iliapenev/ssd1306_i2c.git
+  GIT_TAG master
+  GIT_PROGRESS TRUE
+  GIT_SHALLOW 1
+)
+FetchContent_MakeAvailable(ssd1306)
+include_directories(${ssd1306_SOURCE_DIR})
+
+
 add_executable(${PROJECT_NAME}
   src/main.c
   ${CMAKE_BINARY_DIR}/include/vec.c
@@ -71,6 +83,7 @@ target_link_libraries(${PROJECT_NAME} libpd_static portaudio)
 
 add_executable(test_hardware
   src/test_hardware.c
+  ${ssd1306_SOURCE_DIR}/ssd1306_i2c
 )
 target_link_libraries(test_hardware wiringPi)
 
