@@ -38,6 +38,8 @@ docker run --rm -ti -v `pwd`:/mnt --platform=linux/arm64 debian
 cd /mnt
 apt update
 apt install -y build-essential git cmake libasound2-dev libjack-dev
+wget https://github.com/WiringPi/WiringPi/releases/download/3.1/wiringpi_3.1_arm64.deb
+apt install -y ./wiringpi_3.1_arm64.deb
 cmake -B build
 cmake --build build
 ```
@@ -53,7 +55,7 @@ I have some plans:
 - option to watch for file-changes & reload
 - options for PWM output
 - support for MIDI (with automatic connect/disconnect)
-- websocket server (to remotely interact with server)
-- web emulator
+- websocket server (to remotely interact with running engine)
+- emulator (so you don't need hardware to run patches)
 - make sure native extensions are working, include a bunch
 - more oled commands
