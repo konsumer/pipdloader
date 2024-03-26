@@ -72,7 +72,7 @@ static void printHook(const char* s) {
 }
 
 static void messageHook(const char* src, const char* sym, int argc, t_atom* argv) {
-  // printf("MESSAGE: %s %s (%d)\n", src, sym, argc);
+  printf("MESSAGE: %s %s (%d)\n", src, sym, argc);
   if (strcmp(src, "oled") == 0) {
     if (strcmp(sym, "update") == 0) {
       ssd1306_display();
@@ -118,6 +118,8 @@ static void messageHook(const char* src, const char* sym, int argc, t_atom* argv
     }
   }
 
+  // TODO: not really sue when it's a message or list
+
   // these are neopixels
   if (strcmp(src, "rgb") == 0) {
     // TODO: set RGB colors
@@ -128,10 +130,12 @@ static void messageHook(const char* src, const char* sym, int argc, t_atom* argv
 
     if (strcmp(sym, "input") == 0) {
       pinMode(pin, INPUT);
+      printf("SETUP IN (%d)\n", pin);
     }
 
     if (strcmp(sym, "output") == 0) {
       pinMode(pin, OUTPUT);
+      printf("SETUP OUT (%d)\n", pin);
     }
   }
 
@@ -147,6 +151,7 @@ static void noteonHook(int channel, int pitch, int velocity) {
 }
 
 static void listHook(const char* src, int argc, t_atom* argv) {
+  printf("LIST: %s (%d)\n", src, argc);
   if (strcmp(src, "gpio_out") == 0) {
     int pin = libpd_get_float(&argv[0]);
     int value = libpd_get_float(&argv[1]);
