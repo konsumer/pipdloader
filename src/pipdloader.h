@@ -12,6 +12,20 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
+#include <wiringPi.h>
+#include "ssd1306_i2c.h"
+
+#define SSD1306_PAGE_START_ADDRESS 0
+
+#if SSD1306_LCDHEIGHT == 64
+#define SSD1306_PAGE_END_ADDRESS 7
+#endif
+#if SSD1306_LCDHEIGHT == 32
+#define SSD1306_PAGE_END_ADDRESS 3
+#endif
+#if SSD1306_LCDHEIGHT == 16
+#define SSD1306_PAGE_END_ADDRESS 1
+#endif
 
 bool file_exists(char* filename) {
   return (access(filename, R_OK)) != -1;
@@ -60,10 +74,13 @@ static void printHook(const char* s) {
 static void messageHook(const char* src, const char* sym, int argc, t_atom* argv) {
   // printf("MESSAGE: %s %s (%d)\n", src, sym, argc);
   if (strcmp(src, "oled") == 0) {
+    if (strcmp(sym, "update") == 0) {
+      ssd1306_display();
+    }
     if (strcmp(sym, "text") == 0) {
       int color = libpd_get_float(&argv[0]);
-      int x = libpd_get_float(&argv[1]);
-      int y = libpd_get_float(&argv[2]);
+      cursor_x = libpd_get_float(&argv[1]);
+      cursor_y = libpd_get_float(&argv[2]);
 
       char text[100] = "";
       for (int i = 3; i < argc; i++) {
@@ -72,22 +89,23 @@ static void messageHook(const char* src, const char* sym, int argc, t_atom* argv
           strcat(text, " ");
         }
       }
-      printf("TEXT %d (%dx%d): %s\n", color, x, y, text);
-    }
 
-    if (strcmp(sym, "circle") == 0) {
-      int color = libpd_get_float(&argv[0]);
-      int x = libpd_get_float(&argv[1]);
-      int y = libpd_get_float(&argv[2]);
-      int r = libpd_get_float(&argv[3]);
-      printf("CIRCLE %d: (%dx%d - %d)\n", color, x, y, r);
+      int end = strlen(text);
+      for (int i = 0; i < end; i++) {
+        ssd1306_drawChar(cursor_x, cursor_y, text[i], color, textsize);
+        cursor_x += textsize * 6;
+        if (wrap && (cursor_x > (WIDTH - textsize * 6))) {
+          cursor_y += textsize * 8;
+          cursor_x = 0;
+        }
+      }
     }
 
     if (strcmp(sym, "pixel") == 0) {
       int color = libpd_get_float(&argv[0]);
       int x = libpd_get_float(&argv[1]);
       int y = libpd_get_float(&argv[2]);
-      printf("PIXEL %d: (%dx%d)\n", color, x, y);
+      ssd1306_drawPixel(x, y, color);
     }
 
     if (strcmp(sym, "rectangle") == 0) {
@@ -96,27 +114,31 @@ static void messageHook(const char* src, const char* sym, int argc, t_atom* argv
       int y = libpd_get_float(&argv[2]);
       int w = libpd_get_float(&argv[3]);
       int h = libpd_get_float(&argv[4]);
-      printf("RECTANGLE %d: (%dx%d - %dx%d)\n", color, x, y, w, h);
-    }
-
-    if (strcmp(sym, "image") == 0) {
-      int x = libpd_get_float(&argv[0]);
-      int y = libpd_get_float(&argv[1]);
-
-      char filename[100] = "";
-      for (int i = 3; i < argc; i++) {
-        strcat(filename, libpd_get_symbol(&argv[i]));
-        if (i < (argc - 1)) {
-          strcat(filename, " ");
-        }
-      }
-      printf("IMAGE (%dx%d): %s\n", x, y, filename);
+      ssd1306_fillRect(x, y, w, h, color);
     }
   }
 
   // these are neopixels
   if (strcmp(src, "rgb") == 0) {
     // TODO: set RGB colors
+  }
+
+  if (strcmp(src, "setup") == 0) {
+    int pin = libpd_get_float(&argv[0]);
+
+    if (strcmp(sym, "input") == 0) {
+      pinMode(pin, INPUT);
+    }
+
+    if (strcmp(sym, "output") == 0) {
+      pinMode(pin, OUTPUT);
+    }
+  }
+
+  if (strcmp(src, "gpio_out") == 0) {
+    int pin = libpd_get_float(&argv[0]);
+    int value = libpd_get_float(&argv[1]);
+    printf("GPIO OUT MESSAGE: %d %d\n", pin, value);
   }
 }
 
@@ -128,7 +150,7 @@ static void listHook(const char* src, int argc, t_atom* argv) {
   if (strcmp(src, "gpio_out") == 0) {
     int pin = libpd_get_float(&argv[0]);
     int value = libpd_get_float(&argv[1]);
-    printf("GPIO OUT: %d %d\n", pin, value);
+    printf("GPIO OUT LIST: %d %d\n", pin, value);
   }
 }
 
@@ -213,6 +235,10 @@ int piploader_run(char* filename, char* dirname, bool oled, int* input_gpios, in
     fprintf(stderr, "portaudio open error: %s\n", Pa_GetErrorText(error));
     return -1;
   }
+
+  wiringPiSetupGpio();
+  ssd1306_begin(SSD1306_SWITCHCAPVCC, SSD1306_I2C_ADDRESS);
+  ssd1306_clearDisplay();
 
   libpd_set_printhook(printHook);
   libpd_set_messagehook(messageHook);

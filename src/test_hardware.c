@@ -11,15 +11,12 @@
 
 #if SSD1306_LCDHEIGHT == 64
 #define SSD1306_PAGE_END_ADDRESS 7
-ssd1306_command(7);
 #endif
 #if SSD1306_LCDHEIGHT == 32
 #define SSD1306_PAGE_END_ADDRESS 3
-ssd1306_command(3);
 #endif
 #if SSD1306_LCDHEIGHT == 16
 #define SSD1306_PAGE_END_ADDRESS 1
-
 #endif
 
 void ssd1306_display_image(int* buffer) {
