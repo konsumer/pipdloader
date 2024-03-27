@@ -1,3 +1,7 @@
+> [!IMPORTANT]  
+> I have paused working on this, as I could not get it working reliably the way I wanted. Instead, I have created a native extension. See [puredata-pi](https://github.com/konsumer/puredata-pi)
+
+
 The idea with this is that you can load puredata patches, headless, that can interact with pi GPIO using simple messages.
 
 Use CLI flags like this:

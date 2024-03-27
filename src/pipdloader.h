@@ -77,10 +77,13 @@ static void messageHook(const char* src, const char* sym, int argc, t_atom* argv
     if (strcmp(sym, "update") == 0) {
       ssd1306_display();
     }
+
     if (strcmp(sym, "text") == 0) {
+      int textsize = 1;
+
       int color = libpd_get_float(&argv[0]);
-      cursor_x = libpd_get_float(&argv[1]);
-      cursor_y = libpd_get_float(&argv[2]);
+      int cursor_x = libpd_get_float(&argv[1]);
+      int cursor_y = libpd_get_float(&argv[2]);
 
       char text[100] = "";
       for (int i = 3; i < argc; i++) {
@@ -94,7 +97,7 @@ static void messageHook(const char* src, const char* sym, int argc, t_atom* argv
       for (int i = 0; i < end; i++) {
         ssd1306_drawChar(cursor_x, cursor_y, text[i], color, textsize);
         cursor_x += textsize * 6;
-        if (wrap && (cursor_x > (WIDTH - textsize * 6))) {
+        if (cursor_x > (WIDTH - textsize * 6)) {
           cursor_y += textsize * 8;
           cursor_x = 0;
         }
@@ -117,33 +120,6 @@ static void messageHook(const char* src, const char* sym, int argc, t_atom* argv
       ssd1306_fillRect(x, y, w, h, color);
     }
   }
-
-  // TODO: not really sue when it's a message or list
-
-  // these are neopixels
-  if (strcmp(src, "rgb") == 0) {
-    // TODO: set RGB colors
-  }
-
-  if (strcmp(src, "setup") == 0) {
-    int pin = libpd_get_float(&argv[0]);
-
-    if (strcmp(sym, "input") == 0) {
-      pinMode(pin, INPUT);
-      printf("SETUP IN (%d)\n", pin);
-    }
-
-    if (strcmp(sym, "output") == 0) {
-      pinMode(pin, OUTPUT);
-      printf("SETUP OUT (%d)\n", pin);
-    }
-  }
-
-  if (strcmp(src, "gpio_out") == 0) {
-    int pin = libpd_get_float(&argv[0]);
-    int value = libpd_get_float(&argv[1]);
-    printf("GPIO OUT MESSAGE: %d %d\n", pin, value);
-  }
 }
 
 static void noteonHook(int channel, int pitch, int velocity) {
@@ -155,7 +131,13 @@ static void listHook(const char* src, int argc, t_atom* argv) {
   if (strcmp(src, "gpio_out") == 0) {
     int pin = libpd_get_float(&argv[0]);
     int value = libpd_get_float(&argv[1]);
-    printf("GPIO OUT LIST: %d %d\n", pin, value);
+    digitalWrite(pin, value == 1 ? HIGH : LOW);
+    printf("gpio_out: %d %d\n", pin, value);
+  }
+
+  // these are neopixels
+  if (strcmp(src, "rgb") == 0) {
+    // TODO: set RGB colors
   }
 }
 
@@ -242,8 +224,20 @@ int piploader_run(char* filename, char* dirname, bool oled, int* input_gpios, in
   }
 
   wiringPiSetupGpio();
-  ssd1306_begin(SSD1306_SWITCHCAPVCC, SSD1306_I2C_ADDRESS);
-  ssd1306_clearDisplay();
+
+  if (oled) {
+    ssd1306_begin(SSD1306_SWITCHCAPVCC, SSD1306_I2C_ADDRESS);
+    ssd1306_clearDisplay();
+    ssd1306_display();
+  }
+
+  for (int i = 0; i < input_gpios_count; i++) {
+    pinMode(input_gpios[i], INPUT);
+  }
+
+  for (int i = 0; i < output_gpios_count; i++) {
+    pinMode(output_gpios[i], OUTPUT);
+  }
 
   libpd_set_printhook(printHook);
   libpd_set_messagehook(messageHook);
@@ -265,6 +259,7 @@ int piploader_run(char* filename, char* dirname, bool oled, int* input_gpios, in
 
   libpd_bind("oled");
   libpd_bind("gpio_out");
+  libpd_bind("rgb");
 
   libpd_init_audio(inputchan, outputchan, samplerate);
 
@@ -288,7 +283,7 @@ int piploader_run(char* filename, char* dirname, bool oled, int* input_gpios, in
   while (1) {
     // TODO: read input GPIOs & send messages
     // TODO: read rotary-encoders (and extra buttons) & send messages
-    sleep_ms(1000);
+    delay(100);
   }
 
   // stop audio processing
