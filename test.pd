@@ -45,11 +45,7 @@
 #X obj 1044 325 +;
 #X obj 1010 274 t b f;
 #X text 671 128 rotary messages are id & value \, where value is -1 or 1 depnding on direction;
-#X obj 33 244 s setup;
 #X text 298 256 call this to show drawn tings;
-#X msg 33 154 output 25;
-#X msg 62 129 input 23;
-#X text 30 85 setup up GPIO;
 #X connect 0 0 10 0;
 #X connect 4 0 9 0;
 #X connect 5 0 7 0;
@@ -65,8 +61,6 @@
 #X connect 20 0 15 0;
 #X connect 21 0 2 0;
 #X connect 23 0 25 0;
-#X connect 23 0 49 0;
-#X connect 23 0 48 0;
 #X connect 24 0 2 0;
 #X connect 25 0 26 0;
 #X connect 25 1 24 0;
@@ -97,5 +91,3 @@
 #X connect 43 0 42 1;
 #X connect 44 0 42 0;
 #X connect 44 1 43 1;
-#X connect 48 0 46 0;
-#X connect 49 0 46 0;
