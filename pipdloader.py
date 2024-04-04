@@ -80,6 +80,8 @@ def hook_print(s):
     print(o)
 
 # TODO: handle midi in/out (with auto-reconnecting and stuff)
+# TODO: handle new patch load
+# TODO: watch for file-changes, reload patch
 
 
 libpd_set_print_callback(hook_print)
