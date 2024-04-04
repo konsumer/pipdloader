@@ -20,23 +20,9 @@ lib=['lib', 'demo']
 
 ## dependencies
 
-In order to run it, you will need `pylibpd`:
+In order to run it, you will need some dependencies. You can install themn with [setup.sh](setup.sh) or just have a look at what it installs, and do it however you like.
 
 
-```
-git clone --recursive https://github.com/libpd/libpd.git
-cd libpd/python
-make
-sudo make install
-```
-
-You will also need these libs for various supported hardware:
-
-
-```
-sudo apt-get install -y puredata python3-pip python3-setuptools python3-pygame python3-pil
-sudo pip3 install python-osc Adafruit-Blinka adafruit-circuitpython-ssd1306
-```
 
 ## usage
 
