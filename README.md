@@ -1,3 +1,6 @@
+> [!WARNING]  
+> I stopped at trying to get this all working. Pysound has a lot of considerations for hooking it up in the same thread, It might be usable as a start to some of these ideas, but the sound is very crackly on a pi. I have moved on to making native puredata extensions like [pi8encoder](https://github.com/konsumer/8encoder/tree/main/puredata-pi8encoder) and just ignoring the python part (I can make a GUI in Gem or whatever.)
+
 The idea with this is that you can load puredata patches, headless, that can interact with pi GPIO using simple messages.
 
 You can set your hardware interface, by using CLI flags (run `pipdloader --help`.)
