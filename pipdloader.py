@@ -21,10 +21,12 @@ args.add_argument('-o', '--output', help='GPIO outputs', action='append',  type=
 args.add_argument('-s', '--oled', help='Enable i2c ssd1306 128x64 OLED', action='store_true')
 args.add_argument('-r', '--rotary', help='Enable i2c 4/8-encoder', choices=[4,8], type=int)
 args.add_argument('-l', '--lib', help='Include other dirs in puredata path', action='append')
+args.add_argument('-f', '--fullscreen', help='Show Fullscreen SDL GUI', action='store_true')
 
 # TODO: OLED/LCD splash option?
 # TODO: options for allowing pd gui command
 # TODO: options for enabling/disabling pygame interface
+# TODO: fullscreen option for pygame stuff 
 
 a = args.parse_args()
 
@@ -104,6 +106,7 @@ surface = surface.convert()
 surface.fill((0,0,0))
 pygame.event.set_allowed([QUIT, KEYDOWN, KEYUP])
 pygame.display.set_caption('BellaSynth')
+pygame.mouse.set_visible(False)
 
 BUFFERSIZE = 4096
 SAMPLERATE = 44100
