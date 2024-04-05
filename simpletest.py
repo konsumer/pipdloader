@@ -48,4 +48,4 @@ while(1):
         # cap the framerate
         clock.tick(40)
 
-libpd_release(
+libpd_release()
