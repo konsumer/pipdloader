@@ -21,7 +21,10 @@ args.add_argument('-o', '--output', help='GPIO outputs', action='append',  type=
 args.add_argument('-s', '--oled', help='Enable i2c ssd1306 128x64 OLED', action='store_true')
 args.add_argument('-r', '--rotary', help='Enable i2c 4/8-encoder', choices=[4,8], type=int)
 args.add_argument('-l', '--lib', help='Include other dirs in puredata path', action='append')
+
 # TODO: OLED/LCD splash option?
+# TODO: options for allowing pd gui command
+# TODO: options for enabling/disabling pygame interface
 
 a = args.parse_args()
 
