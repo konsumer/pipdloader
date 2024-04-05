@@ -99,14 +99,19 @@ if a.lib != None:
   for l in a.lib:
     libpd_add_to_search_path(l)
 
-screen = pygame.display.set_mode((640, 480), DOUBLEBUF|HWSURFACE, 16)
-# screen = pygame.display.set_mode((640, 480), FULLSCREEN | DOUBLEBUF, 16)
+
+if a.fullscreen:
+  screen = pygame.display.set_mode((640, 480), FULLSCREEN | DOUBLEBUF, 16)
+  pygame.mouse.set_visible(False)
+else:
+  screen = pygame.display.set_mode((640, 480), DOUBLEBUF|HWSURFACE, 16)
+
 surface = pygame.Surface(screen.get_size())
 surface = surface.convert()
 surface.fill((0,0,0))
 pygame.event.set_allowed([QUIT, KEYDOWN, KEYUP])
 pygame.display.set_caption('BellaSynth')
-pygame.mouse.set_visible(False)
+
 
 BUFFERSIZE = 4096
 SAMPLERATE = 44100
