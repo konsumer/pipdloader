@@ -72,18 +72,33 @@ class Rotary8Handler(RotaryHardwareThread):
     pass
 
   def set_rgb(self, index, r, g, b):
+    if index > 7 or index < 0:
+      print(f"set_rgb: {index} is not in range: 0-7")
+      return
     pass
 
   def set_hsv(self, index, h, s, v):
+    if index > 7 or index < 0:
+      print(f"set_hsv: {index} is not in range: 0-7")
+      return
     pass
 
   def set_rotary(self, index, value):
+    if index > 7 or index < 0:
+      print(f"set_rotary: {index} is not in range: 0-7")
+      return
     pass
 
   def get_rotary(self, index):
+    if index > 7 or index < 0:
+      print(f"get_rotary: {index} is not in range: 0-7")
+      return
     pass
 
   def get_button(self, index):
+    if index > 7 or index < 0:
+      print(f"get_button: {index} is not in range: 0-7")
+      return
     pass
 
 class Rotary4Handler(RotaryHardwareThread):
@@ -91,18 +106,33 @@ class Rotary4Handler(RotaryHardwareThread):
     RotaryHardwareThread.__init__(self, pdsend, 8)
 
   def set_rgb(self, index, r, g, b):
+    if index > 3 or index < 0:
+      print(f"set_rgb: {index} is not in range: 0-3")
+      return
     pass
 
   def set_hsv(self, index, h, s, v):
+    if index > 3 or index < 0:
+      print(f"set_hsv: {index} is not in range: 0-3")
+      return
     pass
 
   def set_rotary(self, index, value):
+    if index > 3 or index < 0:
+      print(f"set_rotary: {index} is not in range: 0-3")
+      return
     pass
 
   def get_rotary(self, index):
+    if index > 3 or index < 0:
+      print(f"get_rotary: {index} is not in range: 0-3")
+      return
     pass
 
   def get_button(self, index):
+    if index > 3 or index < 0:
+      print(f"get_button: {index} is not in range: 0-3")
+      return
     pass
 
 
@@ -121,6 +151,7 @@ class OledHandler(Thread):
 
   def graph(self, color, x, y, w, h, data):
     pass
+
 
 class GpioHandler(Thread):
   def __init__(self, pdsend, inputs=[], outputs=[]):
