@@ -122,6 +122,24 @@ class OledHandler(Thread):
   def graph(self, color, x, y, w, h, data):
     pass
 
+class GpioHandler(Thread):
+  def __init__(self, pdsend, inputs=[], outputs=[]):
+    Thread.__init__(self)
+    self.pdsend = pdsend
+    self.inputs = inputs
+    self.outputs = outputs
+    self.values = [0] * len(inputs)
+
+  def set(self, index, value):
+    pass
+
+   def get(self, index):
+    pass
+
+  def run(self):
+    pass
+
+
 # begin actual runtime
 
 import pyaudio
@@ -157,6 +175,10 @@ if a.oled:
   oled = OledHandler()
   oled.start()
 
+gpio = None:
+if a.input or a.output:
+  gpio = GpioHandler(send_message_to_pd, a.input, a.output)
+
 def hook_message(name, command, *args):
   if rotary != None:
     if command == 'rgb':
@@ -172,6 +194,9 @@ def hook_message(name, command, *args):
       oled.rectangle(int(args[0]), int(args[1]), int(args[2]), int(args[3]), int(args[4]))
     if command == "graph":
       oled.graph(int(args[0]), int(args[1]), int(args[2]), int(args[3]), int(args[4]), args[5:])
+  if gpio != None:
+    if command == "gpio":
+      gpio.set(int(args[0]), int(args[1]))
 
 def hook_print(s):
   o = s.strip()
