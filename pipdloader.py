@@ -11,7 +11,7 @@ args.add_argument('-r', '--rotary', help='Enable i2c 4/8-encoder', choices=[4,8]
 args.add_argument('-l', '--lib', help='Include other dirs in puredata path', action='append')
 
 # TODO: OLED/LCD splash option?
-# TODO: options for allowing pd gui command
+# TODO: options for allowing pd gui command (show gui for running patch)
 
 a = args.parse_args()
 
@@ -178,6 +178,7 @@ if a.oled:
 gpio = None:
 if a.input or a.output:
   gpio = GpioHandler(send_message_to_pd, a.input, a.output)
+  gpio.start()
 
 def hook_message(name, command, *args):
   if rotary != None:
