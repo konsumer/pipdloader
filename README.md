@@ -17,7 +17,9 @@ results in:
 file='demo/demo.pd'
 input=[6, 7, 8]
 output=[9, 10]
-lib=['lib', 'demo']
+oled=False
+rotary=None
+lib=['lib', '/home/pi/pd']
 ```
 
 
