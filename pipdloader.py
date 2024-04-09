@@ -149,6 +149,10 @@ class OledHandler(Thread):
     pass
 
   def graph(self, color, x, y, w, h, data):
+    # map data to bounds, then draw like this: https://stackoverflow.com/questions/46614294/faster-way-to-plot-an-image-with-pil
+    pass
+
+  def draw(self):
     pass
 
 
@@ -233,6 +237,8 @@ def hook_message(name, command, *args):
       oled.rectangle(int(args[0]), int(args[1]), int(args[2]), int(args[3]), int(args[4]))
     if command == "graph":
       oled.graph(int(args[0]), int(args[1]), int(args[2]), int(args[3]), int(args[4]), args[5:])
+    if command == "draw":
+      oled.draw()
   if gpio != None:
     if command == "gpio":
       gpio.set(int(args[0]), int(args[1]))
