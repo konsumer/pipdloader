@@ -16,6 +16,24 @@ a = args.parse_args()
 
 from threading import Thread
 
+# params are 0-1
+def hsv_to_rgb( h, s, v, a ):
+    if s:
+        if h == 1.0: h = 0.0
+        i = int(h*6.0); f = h*6.0 - i
+        
+        w = v * (1.0 - s)
+        q = v * (1.0 - s * f)
+        t = v * (1.0 - s * (1.0 - f))
+        
+        if i==0: return (v, t, w, a)
+        if i==1: return (q, v, w, a)
+        if i==2: return (w, v, t, a)
+        if i==3: return (w, q, v, a)
+        if i==4: return (t, w, v, a)
+        if i==5: return (v, w, q, a)
+    else: return (v, v, v, a)
+
 class RotaryHardwareThread(Thread):
   def __init__(self, pdsend, size=4):
     Thread.__init__(self)
@@ -31,7 +49,7 @@ class RotaryHardwareThread(Thread):
         if v != self.switch:
           self.pdsend('switch', v)
           self.switch = v
-      except NameError:
+      except AttributeError:
         pass
       for index in range(self.size):
         v = self.get_rotary(index)
@@ -100,21 +118,42 @@ class Rotary8Handler(RotaryHardwareThread):
       return
     pass
 
+
+import board
+import busio
+
+import digitalio
+import adafruit_seesaw.seesaw
+import adafruit_seesaw.neopixel
+import adafruit_seesaw.rotaryio
+import adafruit_seesaw.digitalio
+
+
 class Rotary4Handler(RotaryHardwareThread):
   def __init__(self, pdsend):
     RotaryHardwareThread.__init__(self, pdsend, 8)
+    self.i2c = busio.I2C(board.SCL, board.SDA)
+    self.seesaw = adafruit_seesaw.seesaw.Seesaw(self.i2c, 0x49)
+    self.encoders = [adafruit_seesaw.rotaryio.IncrementalEncoder(self.seesaw, n) for n in range(4)]
+    self.switches = [adafruit_seesaw.digitalio.DigitalIO(self.seesaw, pin) for pin in (12, 14, 17, 9)]
+    for switch in self.switches:
+        switch.switch_to_input(digitalio.Pull.UP)
+    self.pixels = adafruit_seesaw.neopixel.NeoPixel(self.seesaw, 18, 4)
+    self.pixels.brightness = 1
 
   def set_rgb(self, index, r, g, b):
     if index > 3 or index < 0:
       print(f"set_rgb: {index} is not in range: 0-3")
       return
-    pass
+    self.pixels[index] = (r, g, b)
 
   def set_hsv(self, index, h, s, v):
     if index > 3 or index < 0:
       print(f"set_hsv: {index} is not in range: 0-3")
       return
     pass
+    (r,g,b,a) = hsv_to_rgb(h, s, v, 1)
+    self.pixels[index] = (r, g, b)
 
   def set_rotary(self, index, value):
     if index > 3 or index < 0:
@@ -172,7 +211,7 @@ class GpioHandler(Thread):
       return
     pass
 
-   def get(self, index):
+  def get(self, index):
     if index not in self.inputs:
       print(f"gpio: {index} pin was not in input option. Add it, if you want that.")
       return
@@ -190,7 +229,7 @@ from os.path import dirname, basename
 
 # simplewrapper around sending messages to patch for rotary
 def send_message_to_pd(name, *args):
-  libpd_message('_host', name, **args)
+  libpd_message('_host', name, *args)
 
 p = pyaudio.PyAudio()
 
@@ -217,7 +256,7 @@ if a.oled:
   oled = OledHandler()
   oled.start()
 
-gpio = None:
+gpio = None
 if a.input or a.output:
   gpio = GpioHandler(send_message_to_pd, a.input, a.output)
   gpio.start()
