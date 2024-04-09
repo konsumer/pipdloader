@@ -164,13 +164,13 @@ class GpioHandler(Thread):
 
   def set(self, index, value):
     if index not in self.outputs:
-      print(f"gpio: {index} pin was in output-options")
+      print(f"gpio: {index} pin was not in output option. Add it, if you want that.")
       return
     pass
 
    def get(self, index):
     if index not in self.inputs:
-      print(f"gpio: {index} pin was in input-options")
+      print(f"gpio: {index} pin was not in input option. Add it, if you want that.")
       return
     pass
 
