@@ -10,7 +10,7 @@ args.add_argument('-s', '--oled', help='Enable i2c ssd1306 128x64 OLED', action=
 args.add_argument('-r', '--rotary', help='Enable i2c 4/8-encoder', choices=[4,8], type=int)
 args.add_argument('-l', '--lib', help='Include other dirs in puredata path', action='append')
 
-# TODO: options for allowing pd gui command (show gui for running patch)
+# TODO: options for allowing pd gui command (show gui for running patch) - see https://github.com/libpd/libpd/pull/97
 
 a = args.parse_args()
 
