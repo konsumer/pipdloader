@@ -10,7 +10,6 @@ args.add_argument('-s', '--oled', help='Enable i2c ssd1306 128x64 OLED', action=
 args.add_argument('-r', '--rotary', help='Enable i2c 4/8-encoder', choices=[4,8], type=int)
 args.add_argument('-l', '--lib', help='Include other dirs in puredata path', action='append')
 
-# TODO: OLED/LCD splash option?
 # TODO: options for allowing pd gui command (show gui for running patch)
 
 a = args.parse_args()
@@ -159,12 +158,20 @@ class GpioHandler(Thread):
     self.pdsend = pdsend
     self.inputs = inputs
     self.outputs = outputs
-    self.values = [0] * len(inputs)
+    #TODO: set mode for input/outputs
+    #TODO: setup some change-interrupts for inputs
+
 
   def set(self, index, value):
+    if index not in self.outputs:
+      print(f"gpio: {index} pin was in output-options")
+      return
     pass
 
    def get(self, index):
+    if index not in self.inputs:
+      print(f"gpio: {index} pin was in input-options")
+      return
     pass
 
   def run(self):
